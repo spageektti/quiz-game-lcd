@@ -23,9 +23,9 @@ void setup() {
     pixel.show();
 }
 
-String questions[] = {"2+2=?", "3+5=?", "7-4=?"};
-String answers[][4] = {{"3", "4", "5", "6"}, {"7", "8", "9", "10"}, {"2", "3", "4", "5"}};
-int correctAnswers[] = {1, 1, 2};
+String questions[] = {"2+2=?", "3+5=?", "7-3=?", "France's Capital?", "Largest planet?"};
+String answers[][4] = {{"3", "4", "5", "6"}, {"7", "8", "9", "10"}, {"2", "3", "4", "5"}, {"Paris.", "London.", "Berlin.", "Rome."}, {"Earth.", "Mars.", "Jupiter.", "Saturn."}};
+int correctAnswers[] = {1, 1, 2, 0, 2};
 int currentQuestion = 0;
 int selectedAnswer = 0;
 
@@ -44,26 +44,31 @@ void displayAnswers() {
 void loop() {
     displayQuestion();
 
-    int sliderValue = analogRead(SLIDER_PIN);
-    selectedAnswer = map(sliderValue, 0, 1023, 0, 3);
-    displayAnswers();
+    while (true) {
+        int sliderValue = analogRead(SLIDER_PIN);
+        int newSelectedAnswer = map(sliderValue, 0, 1023, 0, 3);
 
-    if (digitalRead(BUTTON_PIN) == LOW) {
-        if (selectedAnswer == correctAnswers[currentQuestion]) {
-            tone(BUZZER_PIN, 1000, 200);
-            pixel.setPixelColor(0, pixel.Color(0, 255, 0));
-        } else {
-            tone(BUZZER_PIN, 200, 200);
-            pixel.setPixelColor(0, pixel.Color(255, 0, 0));
+        if (newSelectedAnswer != selectedAnswer) {
+            selectedAnswer = newSelectedAnswer;
+            displayAnswers();
         }
-        pixel.show();
-        delay(1000);
-        pixel.setPixelColor(0, pixel.Color(0, 0, 0));
-        pixel.show();
 
-        currentQuestion = (currentQuestion + 1) % 3;
+        if (digitalRead(BUTTON_PIN) == LOW) {
+            if (selectedAnswer == correctAnswers[currentQuestion]) {
+                tone(BUZZER_PIN, 1000, 200);
+                pixel.setPixelColor(0, pixel.Color(0, 255, 0));
+            } else {
+                tone(BUZZER_PIN, 200, 200);
+                pixel.setPixelColor(0, pixel.Color(255, 0, 0));
+            }
+            pixel.show();
+            delay(500);
+            pixel.setPixelColor(0, pixel.Color(0, 0, 0));
+            pixel.show();
+
+            currentQuestion = (currentQuestion + 1) % 5;
+            displayQuestion();
+        }
+        delay(100);
     }
-
-    delay(100);
 }
-
